@@ -105,6 +105,19 @@ error_reporting(E_ALL);
                 return false;
             }
         }
+        public function getlistCategory(){
+            $sql = 'SELECT cod_categoria,name_categoria ,descripcion
+                    FROM dbo.categorias;';
+            try{
+                $result = $this->execSelect($sql);
+                
+                return $result ;      
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
         
         /*Entities:Usuario Methods*/
         public function registrarUsuario($array){
@@ -228,5 +241,6 @@ error_reporting(E_ALL);
             }
 
         }
+        /*Entities:Usuario Methods-----------------------------------------*/
     }
 ?>  

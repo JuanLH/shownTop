@@ -16,7 +16,7 @@ and open the template in the editor.
     }
     else{
         echo '<p>Esta es una pagina de practica para proyecto de Diseño';
-        echo 'y programacion de paginas web</p><br>';
+        echo ' y programacion de paginas web</p><br>';
         echo '<p>Necesita loguearse para interactuar en la red social</p>';
     }
 ?>

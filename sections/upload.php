@@ -8,13 +8,18 @@ and open the template in the editor.
 <?php
     include ('../clases/FileHandle.php');
     $fileHandle = new FileHandle();
-    if(isset($_FILES['image'])){
-        $result = $fileHandle->upload($_FILES['image'], 0, 0, 0);
-    }
-    else
-        echo "no is set";
     
-    header("Location:index.php");
-    exit();
+    $result = $fileHandle->upload($_FILES['image'], $_POST);
+   
+    if($result = 1){
+        header("Location:index.php");
+        exit();
+    }
+    else if($result = -1){
+        die(' extension del archivo no esta permitida');
+    }
+    else if($result  = -2){
+        die('la imagen no se pudo generar');
+    }
 ?>
 

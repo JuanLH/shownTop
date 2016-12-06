@@ -1,20 +1,20 @@
 /*Use the width property to determine the width of the input field:*/
 input {
-    width: 80%;
+    width: 20%;
 }
 /*Use the padding property to add space inside the text field.
 
 Tip: When you have many inputs after each other, you might also want to add some margin, to add more space outside of them:*/
 input[type=text],input[type=password] {
-    width: 80%;
-    padding: 12px 20px;
+    width: 70%;
+    padding: 5px 10px;
     margin: 8px 0;
     box-sizing: border-box;
 }
 /*Use the border property to change the border size and color, and use the border-radius property to add rounded corners:*/
 input[type=text],input[type=password] {
     border: 2px solid red;
-    border-radius: 4px;
+    border-radius: 2px;
 }
 /*If you only want a bottom border, use the border-bottom property:*/
 input[type=text],input[type=password] {
@@ -37,11 +37,11 @@ If you want an icon inside the input, use the background-image property and posi
 */
 /*
 input[type=text] {
-    background-color: white;
-    background-image: url('searchicon.png');
-    background-position: 10px 10px; 
-    background-repeat: no-repeat;
-    padding-left: 40px;
+background-color: white;
+background-image: url('searchicon.png');
+background-position: 10px 10px; 
+background-repeat: no-repeat;
+padding-left: 40px;
 }
 */
 /* Styling Input Buttons */
@@ -56,3 +56,16 @@ input[type=button], input[type=submit], input[type=reset] {
 }
 
 /* Tip: use width: 100% for full-width buttons */
+
+input[type=file]{
+    width: 55%;
+   font-size: 10px;
+   display: block;
+    background: #f2f2f2;
+    color: #037E8C;
+   
+    text-decoration: none;
+    border-radius:3px;
+    transition:all 300ms ease;
+    
+}

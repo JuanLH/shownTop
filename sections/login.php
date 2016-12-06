@@ -9,7 +9,7 @@ and open the template in the editor.
 	if(!isset($_SESSION)) 
         { 
             session_start(); 
-        } ;
+        };
 	if(isset($_SESSION["user"])){
 		header("location:index.php");
 		exit;

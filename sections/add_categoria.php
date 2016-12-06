@@ -58,7 +58,7 @@ function insert_category(){
             $category_name = $_POST["name"];
             $_POST = array();
             header("Location:index.php?section=add_sub_category&category=$category_name");
-            exit(); 
+            exit();     
        }
    } 
 }

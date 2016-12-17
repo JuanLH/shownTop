@@ -8,6 +8,7 @@ and open the template in the editor.
 <?php
     include ('../clases/FileHandle.php');
     $fileHandle = new FileHandle();
+    //var_dump($_POST);exit();
     
     $result = $fileHandle->upload($_FILES['image'], $_POST);
    

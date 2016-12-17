@@ -42,5 +42,6 @@ and open the template in the editor.
         User Name:<input name="user" type="text" value=""/><br><br>
         Password:<input name="pass" type="password" value=""/><br>
         <input name="submit" type="submit" value="entrar"/>
+        <a href='index.php?section=recuperarClave'>Olvide mi contraseña</a>
 </form>
 	

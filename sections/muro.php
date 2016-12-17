@@ -1,20 +1,85 @@
 
 <div class="muro">
     <?php 
+        include_once('../clases/Utilities.php'); 
         echo '<p id></p>';
         $category = isset($_GET['category']) ? $_GET['category'] : 0;
         $sub_category = isset($_GET['sub_category']) ? $_GET['sub_category'] : 0;
         
+       
         
         
         if($category == null && $sub_category==null) {
             //show all documents
+            
+            $listDoc = $db->getListDoc($sub_category);
+            for($i=0; $i<sizeof($listDoc); $i++){
+                echo '<div class=\'publicacion\' id=\''.$listDoc[$i]['cod_documento'].'\' >';
+                ?>
+                <?php
+                $usuario = $db->getUsuario($listDoc[$i]['cod_usuario']);
+                //var_dump($usuario);
+                echo $usuario['nombre'].' publicado al '.$listDoc[$i]['fecha'].' <br>';
+                 if($listDoc[$i]['texto']!='')
+                    echo "<b>Mensaje:</b>".$listDoc[$i]['texto'].'<br>';
+                if($listDoc[$i]['ubicacion']!='')
+                    echo "<b>Ubicacion:</b>".$db->getUbicacionText ($listDoc[$i]['ubicacion']).'<br>';
+                if($listDoc[$i]['vinculo']!='')
+                    echo "<b>Vinculo:</b>".'<a href='.$listDoc[$i]['vinculo'].'>enlace</a><br>';
+                echo '<img src =\''.$listDoc[$i]['tumbnail'].'\'><br>';
+                echo '<img src =\'resources/like.png\' id=\''.$listDoc[$i]['cod_documento'].'\'  class = \'like\' width=20px  height = 20px>';
+                echo '<img src =\'resources/dislike.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'dislike\'  width=20px  height = 20px>';
+                echo '<img src =\'resources/Button-Favorite-icon.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'favorito\'  width=20px  height = 20px>';
+                echo '<p  id=\''.($listDoc[$i]['cod_documento']-1000).'\'> <b>Valoracion:</b>'.$listDoc[$i]['valoracion'].'</p>';
+                
+                ?>
+                </div>   
+                <?php
+                
+            }
+             
         }
-        else if(isset ($category) && $sub_category==null){
-            //show all documents from this category
-        }
-        else if($category== null && isset ($sub_category)){
+        else if(isset ($category) && $sub_category==''){
             ?>
+            
+            
+            <?php
+            //show all documents from this category
+            
+         
+            //$array = $db->getListDocSubC($sub_category);
+            //var_dump($array[0]['fecha'].'Prueba');
+            //var_dump($db->getListDocSubC($sub_category));exit();
+            echo "<h2>Publicaciones en esta Categoria</h2>";
+            $listDoc = $db->getListDocCat($category);
+            //var_dump($listDoc);exit();
+            for($i=0; $i<sizeof($listDoc); $i++){
+                echo '<div class=\'publicacion\' id=\''.$listDoc[$i]['cod_documento'].'\' >';
+                ?>
+                <?php
+                $usuario = $db->getUsuario($listDoc[$i]['cod_usuario']);
+                //var_dump($usuario);
+                echo $usuario['nombre'].' publicado al '.$listDoc[$i]['fecha'].' <br>';
+                 if($listDoc[$i]['texto']!='')
+                    echo "<b>Mensaje:</b>".$listDoc[$i]['texto'].'<br>';
+                if($listDoc[$i]['ubicacion']!='')
+                   echo "<b>Ubicacion:</b>".$db->getUbicacionText ($listDoc[$i]['ubicacion']).'<br>';
+                if($listDoc[$i]['vinculo']!='')
+                    echo "<b>Vinculo:</b>".'<a href='.$listDoc[$i]['vinculo'].'>enlace</a><br>';
+                echo '<img src =\''.$listDoc[$i]['tumbnail'].'\'><br>';
+                echo '<img src =\'resources/like.png\' id=\''.$listDoc[$i]['cod_documento'].'\'  class = \'like\' width=20px  height = 20px>';
+                echo '<img src =\'resources/dislike.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'dislike\'  width=20px  height = 20px>';
+                echo '<img src =\'resources/Button-Favorite-icon.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'favorito\'  width=20px  height = 20px>';
+                echo '<p  id=\''.($listDoc[$i]['cod_documento']-1000).'\'><b>Valoracion:</b>'.$listDoc[$i]['valoracion'].'</p>';
+                ?>
+                </div>   
+                <?php
+                
+            }
+        }
+        else if(isset($category) && isset ($sub_category)){
+            ?>
+            <h2>Nueva Publicacion</h2>
             <form action="index.php?section=upload" method="post" enctype = "multipart/form-data">
             <label for="mail">Archivo:</label><br>
             <input type="file"  name="image" /><br>
@@ -23,36 +88,52 @@
             <label for="enlace">Enlace:</label><br>
             <textarea  name="user_enlace"></textarea><br>
             <label for="ubicacion">Ubicacion:</label><br>
-            <textarea  name="user_ubicacion"></textarea><br>
+            <input list="paises" type="text" name="paises">
+            <datalist id="paises">
+                <?php
+                    $db = Utilities::getConnection();
+                    $paises= $db->getListPaises();
+                    foreach($paises as $row){
+                        echo "<option value='".$row['nicename']."' id='".$row['cod_pais']."'>".$row['cod_pais']."</option>";
+                    }
+                   
+                ?>
+            </datalist><br>
+            <input  name="user_ubicacion"></input><br>
+            
             <br>
             <input type="hidden" value="<?php echo $_GET['sub_category']?>" name="sub_category" />
             <input type="hidden" value="<?php echo $_SESSION["user"]?>" name="id_user" />
-            <button type="submit">Send your message</button>
+            <button type="submit">Enviar</button>
             </form>
+            
             <?php
             //show all documents from this category
-            include_once ('../clases/Utilities.php'); 
-            $db = Utilities::getConnection();
+            
+         
             //$array = $db->getListDocSubC($sub_category);
             //var_dump($array[0]['fecha'].'Prueba');
             //var_dump($db->getListDocSubC($sub_category));exit();
-            
+            echo "<br><br><h2>Publicaciones en esta Categoria</h2>";
             $listDoc = $db->getListDocSubC($sub_category);
             for($i=0; $i<sizeof($listDoc); $i++){
-                echo '<div id=\''.$listDoc[$i]['cod_documento'].'\' style="border: 2px solid rgb(204, 102, 204);">';
+                echo '<div class=\'publicacion\' id=\''.$listDoc[$i]['cod_documento'].'\' >';
                 ?>
                 <?php
                 $usuario = $db->getUsuario($listDoc[$i]['cod_usuario']);
                 //var_dump($usuario);
                 echo $usuario['nombre'].' publicado al '.$listDoc[$i]['fecha'].' <br>';
-                echo $listDoc[$i]['texto'].'<br>';
-                echo $listDoc[$i]['ubicacion'].'<br>';
+                 if($listDoc[$i]['texto']!='')
+                    echo "<b>Mensaje:</b>".$listDoc[$i]['texto'].'<br>';
+                if($listDoc[$i]['ubicacion']!='')
+                    echo "<b>Ubicacion:</b>".$db->getUbicacionText ($listDoc[$i]['ubicacion']).'<br>';
                 if($listDoc[$i]['vinculo']!='')
-                    echo '<a href='.$listDoc[$i]['vinculo'].'>enlace</a><br>';
+                    echo "<b>Vinculo:</b>".'<a href='.$listDoc[$i]['vinculo'].'>enlace</a><br>';
                 echo '<img src =\''.$listDoc[$i]['tumbnail'].'\'><br>';
                 echo '<img src =\'resources/like.png\' id=\''.$listDoc[$i]['cod_documento'].'\'  class = \'like\' width=20px  height = 20px>';
                 echo '<img src =\'resources/dislike.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'dislike\'  width=20px  height = 20px>';
-                echo '<p  id=\''.($listDoc[$i]['cod_documento']-1000).'\'>'./*$db->getValoracion($listDoc[$i]['cod_documento'])*/$listDoc[$i]['valoracion'].'</p>';
+                echo '<img src =\'resources/Button-Favorite-icon.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'favorito\'  width=20px  height = 20px>';
+                echo '<p  id=\''.($listDoc[$i]['cod_documento']-1000).'\'><b>Valoracion:</b>'.$listDoc[$i]['valoracion'].'</p>';
                 ?>
                 </div>   
                 <?php
@@ -66,13 +147,30 @@
 <script>
  $(document).ready(function() {
      
-     
     var values = {
             'category': '<?=$category?>',
             'sub_category': '<?=$sub_category?>'
     }; 
     
-   
+   $(".favorito").on('click', function() {
+        //console.log($(this).attr('id'));
+        var documento = {
+            'cod_documento' : $(this).attr('id'),
+        };
+          $.ajax({
+            url: "scripts/favorito.php",
+            type: "POST",
+            data: documento,
+            success: function(data) {
+               console.log(data);
+               
+              
+            },
+            error: function() {
+              alert("error");
+            }
+          });
+        });
     
     $(".like").on('click', function() {
         console.log($(this).attr('id'));

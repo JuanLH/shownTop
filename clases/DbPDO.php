@@ -14,6 +14,9 @@ error_reporting(E_ALL);
         private $conn;
         private $driverName;
         
+        private $extensions= array("jpeg","png","gif","jpg");
+        private $path="uploads/";
+        
         public function __construct($driverName, $host, $port, $username, $password, $dbname) {
                 $this->host = $host;
                 $this->password = $password;
@@ -139,9 +142,28 @@ error_reporting(E_ALL);
                 return false;
             }
         }
+        public function getlistSubCategorybyName($name_category){
+            $sql = 'SELECT [cod_sub_categoria]
+                    ,[name_sub_categoria]
+                    ,[cod_categoria]
+                    ,[descripcion]
+                FROM [showntop].[dbo].[sub_categorias]
+                where cod_categoria = (
+                select cod_categoria from categorias where name_categoria = \''.$name_category.'\' );';
+            
+            try{
+                $result = $this->execSelect($sql);
+                return $result ;      
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
+        
         
         public function getSubCategory($name_subcategory){
-            $sql = 'SELECT [cod_sub_categoria]  
+            $sql = 'SELECT [cod_sub_categoria] 
                 FROM [showntop].[dbo].[sub_categorias]
                 where [name_sub_categoria] =\''.$name_subcategory.'\';';
           
@@ -157,7 +179,7 @@ error_reporting(E_ALL);
             }
         }
         
-        /*Entities:Usuario Methods*/
+        /*Entities:Usuario Methods-----------------------------------------*/
         public function registrarUsuario($array){
             try{
                 $result = $this->execSelect('select max(cod_usuario) from dbo.usuarios');
@@ -198,6 +220,132 @@ error_reporting(E_ALL);
             }
             return $prep;
         }
+        
+        public function modificarUsuariofull($array,$file){
+        $file_n = null;
+        $file_ext= null;
+       
+        $ubicacion=( $array['direccion']!="" ? $this->insertUbicacion($array['direccion'],$array['direccion_provincia']):null);
+        if($file['size']!=0){
+
+            $file_name = $file['name'];
+            $file_size = $file['size'];
+            $file_tmp = $file['tmp_name'];
+            $file_type = $file['type'];
+
+            //pick the file extens
+            //ion
+            $part = explode('.',$file_name);
+            $file_n = strtolower($part[0]);
+            $file_ext=strtolower($part[1]);
+
+            if(in_array($file_ext,$this->extensions)===false){
+                 return -1;
+             }
+             else{
+                //abrir la foto original
+                if($file_ext == 'jpeg' || $file_ext == 'jpg'){
+                    $original=  imagecreatefromjpeg($file_tmp);
+                }
+                else if ($file_ext == 'png'){
+                    $original= imagecreatefrompng($file_tmp);
+                }
+                else if ($file_ext == 'gif'){
+                    $original = imagecreatefromgif($file_tmp);
+                    var_dump($original);exit();
+                }
+                else{
+                    /*no se pudo generar la imagen*/
+                    return -2;
+                }
+             }
+
+            $ancho_original = imagesx($original);
+            $alto_original = imagesy($original);
+
+            //crear un lienzo vacio
+            $ancho_nuevo = 100;
+            $alto_nuevo = round($ancho_nuevo * $alto_original / $ancho_original);
+            $copia = imagecreatetruecolor($ancho_nuevo, $alto_nuevo);
+
+            //copiar original -> copia
+            $dst_image= $copia;
+            $src_image = $original;  
+            $dst_x = 0;        
+            $dst_y = 0;
+            $src_x = 0;
+            $src_y = 0;
+            $dst_w = $ancho_nuevo;
+            $dst_h = $alto_nuevo;
+            $src_w = $ancho_original;
+            $src_h =$alto_original;           
+
+            imagecopyresampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
+
+            //exportar/guardar imagen
+             if($file_ext == 'jpeg' || $file_ext == 'jpg'){
+                 imagejpeg($copia, $this->path.$file_n.'2.'.$file_ext);
+             }
+             else if ($file_ext == 'png'){
+                 imagepng($copia, $this->path.$file_n.'2.'.$file_ext);
+
+             }
+             else if ($file_ext == 'gif'){
+                 imagegif($copia,$this->path.$file_n.'2.'.$file_ext);
+             }
+             else{
+                 die('no grabo nada');exit();
+             }
+
+            imagedestroy($original);
+            imagedestroy($copia);
+
+            /*Insert into database here*/
+            move_uploaded_file($file_tmp,$this->path.$file_name);
+            //var_dump($postdata);exit();
+        }
+        try{
+
+            
+            $prep = $this->conn->prepare('UPDATE usuarios
+                                            SET nombre = ?
+                                               ,direccion = ?
+                                               ,sexo = ?
+                                               ,correo = ?
+                                               ,foto = ?
+                                               ,telefono = ?
+                                               ,whatsapp = ?
+                                               ,web = ?
+                                               ,fecha_nacimiento = ?
+                                               ,estado_civil = ?
+                                               ,identificacion = ?
+                                               ,cod_ubicacion = ?
+                                          WHERE cod_usuario = ?;');
+            
+            $prep->bindParam(1,$array["nombre"]);
+            $prep->bindParam(2,$ubicacion);
+            $prep->bindParam(3,$array["gender"]);
+            $prep->bindParam(4,$array["correo"]);
+            //echo $this->path.$file_n.'2.'.$file_ext;exit();
+            $fotopic = ($file['size'] != 0 ?$this->path.$file_n.'2.'.$file_ext:null);
+            $prep->bindParam(5, $fotopic);
+            $prep->bindParam(6,$array["telefono"]);
+            $prep->bindParam(7,$array["whatsapp"]);
+            $prep->bindParam(8,$array["web"]);
+            $prep->bindParam(9,$array["fecha_nacimiento"]);
+            $prep->bindParam(10,$array["estado"]);
+            $prep->bindParam(11,$array["identificacion"]);
+            $prep->bindParam(12,$ubicacion);
+            $prep->bindParam(13,$_SESSION['user']);
+            //var_dump($array["status"]);exit();
+            $prep->execute(); 
+        }
+        catch(PDOException $e){
+            echo 'Connection failed:<br><br> ' . $e->getMessage();
+            return false;
+        }
+        return $prep;
+        }
 
         public function modificarUsuario($array){
             try{
@@ -230,12 +378,14 @@ error_reporting(E_ALL);
 
         public function getUsuarios(){
             $result;
-            $sql = 'SELECT codigo_usuario,nombre,sexo
-                    ,correo,clave,web
-                    ,fehca_registro
+            $sql = 'SELECT *
                     FROM [dbo].[usuarios] where estado = 0';
             try{
-                $result = $this->execSelect($sql);     
+                $statement = $this->conn->prepare($sql);
+                $statement->execute();
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                //var_dump($result);exit();
+                return $result;  
                 return $result;    
             }
             catch(PDOException $e){
@@ -247,9 +397,7 @@ error_reporting(E_ALL);
 
         public function getUsuario($cod){
             $result;
-            $sql = 'SELECT cod_usuario,nombre,sexo
-                    ,correo,clave,web
-                    ,fecha_registro
+            $sql = 'SELECT *
                     FROM [dbo].[usuarios] where estado = 0 and cod_usuario ='.$cod;
             try{
                 $result = $this->execSelect($sql); 
@@ -261,6 +409,25 @@ error_reporting(E_ALL);
                 return false;
             }
               
+        }
+        
+        public function isAdminUser($cod){
+            $result;
+            $sql = 'SELECT *
+                    FROM [dbo].[usuarios] where estado = 0 and cod_usuario ='.$cod;
+            try{
+                $result = $this->execSelect($sql); 
+                //var_dump($result);    
+                $result = $result ? $result->fetch(PDO::FETCH_ASSOC) : null;    
+                if((!$result == null)&& $result['tipo_usuario']==2){
+                    return true;
+                }
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> '. $e->getMessage();
+                return false;
+            }
+            return false;
         }
 
         public function login($user,$pass){
@@ -279,12 +446,35 @@ error_reporting(E_ALL);
             }
 
         }
+        
+        public function getUsers($array){
+            try{
+            $prep = $this->conn->prepare ("SELECT cod_usuario ,nombre,direccion
+                        ,sexo,correo,foto,telefono
+                        ,whatsapp,web,fecha_nacimiento
+                        ,fecha_registro,estado_civil
+                        ,identificacion,estado
+                    FROM usuarios 
+                    WHERE tipo_usuario = 1
+                     AND correo like '".$array['correo']."%' 
+                     AND nombre  like '".$array['nombre']."%'
+                     AND sexo like '".$array['sexo']."%'
+                     AND estado_civil like '".$array['estado_civil']."%'");
+            
+            $prep->execute();
+            //$prep->debugDumpParams();
+            $result = $prep->fetchAll(PDO::FETCH_ASSOC);
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+            return $result;
+        }
         /*Entities:documentos Methods-----------------------------------------*/
         
          public function insertDocumento($array){
             try{
-                
-                
                 $prep = $this->conn->prepare('INSERT INTO [dbo].[documento]
                                                 ([cod_usuario]
                                                 ,[cod_tipo_documento]
@@ -465,6 +655,58 @@ error_reporting(E_ALL);
                 }   
             }*/
         }
+       
+        public function addFavorito($cod_documento,$cod_usuario){
+            $sql="INSERT INTO [dbo].[favoritos]
+                    ([cod_documento]
+                    ,[cod_usuario])
+              VALUES
+                    (?,?)";
+            try{
+                $stmt =$this->conn->prepare($sql);
+                $stmt->bindParam(1,$cod_documento);
+                $stmt->bindParam(2,$cod_usuario);
+                $stmt->execute();
+                return true;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                    return false;
+            }
+            
+        }
+        
+        public function getUbicacionText($codUbicacion){
+            
+            $sql = "SELECT cod_ubicacion
+                ,(select nicename from pais p where p.cod_pais = u.cod_pais)
+                ,nombre
+            FROM dbo.ubicaciones u
+                  Where cod_ubicacion = ".$codUbicacion."";
+            
+             $stmt =$this->conn->prepare($sql);
+            $stmt->execute();
+            $row = $stmt->fetch();
+            
+            return $row[1].",".$row[2];
+        }
+        
+        
+        public function getUbicacion($codUbicacion){
+            
+            $sql = "SELECT cod_ubicacion
+                ,(select nicename from pais p where p.cod_pais = u.cod_pais)
+                ,nombre
+            FROM dbo.ubicaciones u
+                  Where cod_ubicacion = ".(int)$codUbicacion."";
+            
+             $stmt =$this->conn->prepare($sql);
+            $stmt->execute();
+            $row = $stmt->fetch();
+            //var_dump($row);
+            return $row;
+        }
+        
         
         public function getListDocSubC($subCat){
             
@@ -500,6 +742,206 @@ error_reporting(E_ALL);
             }
             
         }
+        
+        
+        public function getListDocCat($Cat){
+            
+            $cod_Cat = (int)$this->getCategory($Cat);
+            
+            $sql = "SELECT [cod_documento]
+                ,[fecha]
+                ,[cod_usuario]
+                ,[cod_tipo_documento]
+                ,[texto]
+                ,[ubicacion]
+                ,[foto]
+                ,[valoracion]
+                ,[id_doc_original]
+                ,[cod_sub_categoria]
+                ,[vinculo]
+                ,[estado]
+                ,[tumbnail]
+            FROM [dbo].[documento]
+            WHERE cod_sub_categoria in (select cod_sub_categoria from sub_categorias where cod_categoria = (select cod_categoria from categorias where name_categoria = '".$Cat."')) 
+            AND [cod_tipo_documento] <6 order by valoracion desc";
+            
+            try{
+                //var_dump($sql);exit();
+                $statement = $this->conn->prepare($sql);
+                $statement->execute();
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                //var_dump($result);exit();
+                return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+            
+        }
+        
+        public function getListUserDoc($id_user){
+            $sql = "SELECT [cod_documento]
+                ,[fecha]
+                ,[cod_usuario]
+                ,[cod_tipo_documento]
+                ,[texto]
+                ,[ubicacion]
+                ,[foto]
+                ,[valoracion]
+                ,[id_doc_original]
+                ,[cod_sub_categoria]
+                ,[vinculo]
+                ,[estado]
+                ,[tumbnail]
+            FROM [dbo].[documento]
+            WHERE cod_usuario = ".$id_user." and cod_tipo_documento < 6";
+            try{
+                $statement = $this->conn->prepare($sql);
+                $statement->execute();
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
+        
+         public function getListFav($id_user){
+            $sql = "SELECT [cod_documento]
+                ,[fecha]
+                ,[cod_usuario]
+                ,[cod_tipo_documento]
+                ,[texto]
+                ,[ubicacion]
+                ,[foto]
+                ,[valoracion]
+                ,[id_doc_original]
+                ,[cod_sub_categoria]
+                ,[vinculo]
+                ,[estado]
+                ,[tumbnail]
+            FROM [dbo].[documento]
+            where cod_documento in (SELECT [cod_documento]
+            FROM [dbo].[favoritos] where cod_usuario = ".$id_user.")";
+            try{
+                $statement = $this->conn->prepare($sql);
+                $statement->execute();
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
+        
+        public function getListDoc(){
+            $sql = "SELECT [cod_documento]
+                ,[fecha]
+                ,[cod_usuario]
+                ,[cod_tipo_documento]
+                ,[texto]
+                ,[ubicacion]
+                ,[foto]
+                ,[valoracion]
+                ,[id_doc_original]
+                ,[cod_sub_categoria]
+                ,[vinculo]
+                ,[estado]
+                ,[tumbnail]
+            FROM [dbo].[documento]
+            WHERE cod_tipo_documento < 6";
+            try{
+                $statement = $this->conn->prepare($sql);
+                $statement->execute();
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
+
+
+        public function getListPaises(){
+            
+            $sql = 'SELECT [cod_pais]
+                    ,[nicename]
+                FROM [dbo].[pais]';
+            
+            
+            
+            try{
+                //var_dump($sql);exit();
+                $statement = $this->conn->prepare($sql);
+                $statement->execute();
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                //var_dump($result);exit();
+                return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+            
+        }
+        /*Metodos de ubicacion----------------*/
+        public function getPais($nicename){
+            $sql="SELECT [cod_pais]
+                ,[iso]
+                ,[nombre]
+                ,[nicename]
+                ,[iso3]
+                ,[numcode]
+                ,[phonecode]
+            FROM [dbo].[pais]
+            WHERE [nicename]='".$nicename."'";
+            try{
+                $prep=$this->conn->prepare($sql);
+                $prep->execute();
+                $result = $prep->fetchAll(PDO::FETCH_ASSOC);
+                return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+            
+        }
+        public function insertUbicacion($nicename,$name){
+            $sql = "INSERT INTO dbo.ubicaciones
+                        (cod_pais
+                        ,nombre)
+                  VALUES (?,?);";
+            
+            $cod_pais=$this->getPais($nicename)[0]['cod_pais'];
+            try{
+                $prep=$this->conn->prepare($sql);
+                $prep->bindParam(1,$cod_pais);
+                $prep->bindParam(2,$name);
+                $prep->execute();
+                /*-------------------------------------*/
+                $sql2 = "SELECT TOP 1 [cod_ubicacion]
+                        ,[cod_pais]
+                        ,[nombre]
+                    FROM [showntop].[dbo].[ubicaciones]
+                    order by cod_ubicacion desc"; 
+                
+                $prep2 = $this->conn->prepare($sql2);
+                $prep2->execute();
+                $result = $prep2->fetchAll(PDO::FETCH_ASSOC)[0]['cod_ubicacion'];
+                
+                return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
+        /*------------------------------------*/
         
     }
 ?>  

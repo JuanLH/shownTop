@@ -27,8 +27,9 @@ class FileHandle {
        /* ## */
        //var_dump($file);
        //var_dump($postdata);exit();
+        
        if($file['size']!=0){
-           
+            $id_num = rand(0, 50000);
             $file_name = $file['name'];
             $file_size = $file['size'];
             $file_tmp = $file['tmp_name'];
@@ -85,14 +86,14 @@ class FileHandle {
 
             //exportar/guardar imagen
              if($file_ext == 'jpeg' || $file_ext == 'jpg'){
-                 imagejpeg($copia, $this->path.$file_n.'2.'.$file_ext);
+                 imagejpeg($copia, $this->path.$id_num.$file_n.'2.'.$file_ext);
              }
              else if ($file_ext == 'png'){
-                 imagepng($copia, $this->path.$file_n.'2.'.$file_ext);
+                 imagepng($copia, $this->path.$id_num.$file_n.'2.'.$file_ext);
 
              }
              else if ($file_ext == 'gif'){
-                 imagegif($copia,$this->path.$file_n.'2.'.$file_ext);
+                 imagegif($copia,$this->path.$id_num.$file_n.'2.'.$file_ext);
              }
              else{
                  die('no grabo nada');exit();
@@ -102,7 +103,7 @@ class FileHandle {
             imagedestroy($copia);
 
             /*Insert into database here*/
-            move_uploaded_file($file_tmp,$this->path.$file_name);
+            move_uploaded_file($file_tmp,$this->path.$id_num.$file_name);
             //var_dump($postdata);exit();
        }
         
@@ -125,18 +126,19 @@ class FileHandle {
 
         include('../clases/Utilities.php'); 
         $db = Utilities::getConnection();
-
+        $ubicacion=( $postdata['paises']!="" ? $db->insertUbicacion($postdata['paises'],$postdata['user_ubicacion']):null);
+        //var_dump($db->insertUbicacion($postdata['paises'],$postdata['user_ubicacion']));  exit();
         $array = array(
             "cod_usuario" => $postdata['id_user'],
             'cod_tipo_documento'=> (int)$tipo_doc,
+            'ubicacion'=> $ubicacion,
+            'foto'=> ($file['size'] != 0? $this->path.$id_num.$file_name:null),
             'texto'=> $postdata['user_message'],
-            'ubicacion'=> $postdata['user_ubicacion'],
-            'foto'=> ($file['size'] != 0? $this->path.$file_name:null),
             'valoracion'=> 0,
             'cod_sub_categoria'=> (int)$db->getSubCategory($postdata['sub_category']),
             'vinculo'=>$postdata['user_enlace'],
             'estado'=>0,
-            'tumbnail'=>($file['size'] != 0 ?$this->path.$file_n.'2.'.$file_ext:null) 
+            'tumbnail'=>($file['size'] != 0 ?$this->path.$id_num.$file_n.'2.'.$file_ext:null) 
         );
         $result = $db->insertDocumento($array);
         

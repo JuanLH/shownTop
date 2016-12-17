@@ -23,6 +23,17 @@ a:hover{
 	color: red;
 }
 
+.formCenter{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 30%;
+    border: solid #037E8C;
+    margin-bottom: 10px;
+    margin-left: 2%;
+    background-color:#FFE369;
+    border-radius: 5px;
+    display: block;
+}
 .wrapper{
     max-height: 300px;
     max-width: 1550px;
@@ -94,7 +105,7 @@ nav ul li a {
 
 nav ul li a:hover {
 	color: #fff;
-	background: #F24C27;
+	background: #C9F76C;
 }
 
 .mensaje {

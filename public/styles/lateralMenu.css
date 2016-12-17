@@ -26,6 +26,27 @@ and open the template in the editor.
     overflow: hidden;
     
 }
+
+.formPub input[type=submit] {
+   
+    background:#f2f2f2; 
+    border:0 none;
+    cursor:pointer;
+    padding:5px 10px;
+    text-decoration: none;
+    border-radius: 3px; 
+    margin-left: 20% ;
+    margin-right: auto ;
+    margin-top: 5px;
+}
+
+input [type=submit]:hover {	
+    
+	color: #fff;
+	background: #C9F76C;
+}
+
+
 #cat select {
     padding: 5px 8px;
     width: 130%;

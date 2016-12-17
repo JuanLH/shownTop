@@ -471,6 +471,58 @@ error_reporting(E_ALL);
             }
             return $result;
         }
+        
+        public function thereAreUser($email){
+            $sql = "select  cod_usuario,nombre from usuarios where correo = '".$email."'";
+            try{
+                $prep = $this->conn->prepare($sql);
+                $prep->execute();
+                $result = $prep->fetchAll(PDO::FETCH_ASSOC);
+                if(sizeof($result)==0){
+                    return false;
+                }
+                else{
+                    $this->setChangePassStatus($email);
+                    return true;
+                }
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
+        public function setChangePassStatus($email){
+            $sql = "UPDATE usuarios
+                    SET 
+                      estado = 2
+                  WHERE correo = '".$email."'";
+            try{
+                $prep = $this->conn->prepare($sql);
+                $prep->execute();
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' .$e->getMessage();
+                return false;
+            }
+        }
+        
+        public function getUserStatus($email){
+            $sql = "select  estado from usuarios where correo = '".$email."'";
+            try{
+                $prep = $this->conn->prepare($sql);
+                $prep->execute();
+                $result = $prep->fetchAll(PDO::FETCH_ASSOC);
+                if(sizeof($result)==0){
+                    return false;
+                }
+                else
+                    return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
         /*Entities:documentos Methods-----------------------------------------*/
         
          public function insertDocumento($array){
@@ -795,7 +847,7 @@ error_reporting(E_ALL);
                 ,[estado]
                 ,[tumbnail]
             FROM [dbo].[documento]
-            WHERE cod_usuario = ".$id_user." and cod_tipo_documento < 6";
+            WHERE cod_usuario = ".$id_user." and cod_tipo_documento < 6 order by valoracion desc";
             try{
                 $statement = $this->conn->prepare($sql);
                 $statement->execute();
@@ -824,7 +876,7 @@ error_reporting(E_ALL);
                 ,[tumbnail]
             FROM [dbo].[documento]
             where cod_documento in (SELECT [cod_documento]
-            FROM [dbo].[favoritos] where cod_usuario = ".$id_user.")";
+            FROM [dbo].[favoritos] where cod_usuario = ".$id_user.") order by valoracion desc";
             try{
                 $statement = $this->conn->prepare($sql);
                 $statement->execute();
@@ -852,7 +904,7 @@ error_reporting(E_ALL);
                 ,[estado]
                 ,[tumbnail]
             FROM [dbo].[documento]
-            WHERE cod_tipo_documento < 6";
+            WHERE cod_tipo_documento < 6 order by valoracion desc";
             try{
                 $statement = $this->conn->prepare($sql);
                 $statement->execute();

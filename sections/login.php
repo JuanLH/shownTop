@@ -37,11 +37,11 @@ and open the template in the editor.
 	}
         echo $msg;
 ?>
-
+<div class="formCenter">
 <form method="POST" action="index.php?section=login">
-        User Name:<input name="user" type="text" value=""/><br><br>
-        Password:<input name="pass" type="password" value=""/><br>
+        <b>User Name:</b><br><input name="user" type="text" value=""/><br><br>
+        <b>Password:</b><br><input name="pass" type="password" value=""/><br><br>
         <input name="submit" type="submit" value="entrar"/>
         <a href='index.php?section=recuperarClave'>Olvide mi contraseña</a>
 </form>
-	
+</div>	

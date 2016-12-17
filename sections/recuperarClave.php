@@ -1,7 +1,8 @@
 <?php
+    $respuesta = '';
     if(isset($_POST['submit'])){
-        //include '../clases/Utilities.php';
-        //echo Utilities::sendEmail($_POST['correo']);
+        include '../clases/Utilities.php';
+        echo Utilities::sendEmail($_POST['correo']);
         
     }
 ?>

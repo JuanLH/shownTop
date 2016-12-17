@@ -66,7 +66,7 @@ class FileHandle {
             $alto_original = imagesy($original);
 
             //crear un lienzo vacio
-            $ancho_nuevo = 300;
+            $ancho_nuevo = 250;
             $alto_nuevo = round($ancho_nuevo * $alto_original / $ancho_original);
             $copia = imagecreatetruecolor($ancho_nuevo, $alto_nuevo);
 

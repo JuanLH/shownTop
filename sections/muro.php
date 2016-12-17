@@ -13,6 +13,15 @@
             //show all documents
             
             $listDoc = $db->getListDoc($sub_category);
+            if(sizeof($listDoc)==0){
+                echo '<div class=\'publicacion\' >';
+                echo "<h2>Aun no existen publicaciones en el sitio</h2> <img src ='resources/smailer-triste.png' class='noPubImagen'>";
+                echo '</div>';
+            }  else {
+                echo '<div class=\'publicacion\' >';
+               echo "<h2>Publicaciones en todo el sitio</h2>";
+               echo '</div>';
+            }
             for($i=0; $i<sizeof($listDoc); $i++){
                 echo '<div class=\'publicacion\' id=\''.$listDoc[$i]['cod_documento'].'\' >';
                 ?>
@@ -30,7 +39,7 @@
                 echo '<img src =\'resources/like.png\' id=\''.$listDoc[$i]['cod_documento'].'\'  class = \'like\' width=20px  height = 20px>';
                 echo '<img src =\'resources/dislike.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'dislike\'  width=20px  height = 20px>';
                 echo '<img src =\'resources/Button-Favorite-icon.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'favorito\'  width=20px  height = 20px>';
-                echo '<p  id=\''.($listDoc[$i]['cod_documento']-1000).'\'> <b>Valoracion:</b>'.$listDoc[$i]['valoracion'].'</p>';
+                echo '<p  id=\''.($listDoc[$i]['cod_documento']-1000).'\'> <b>Valoracion:  </b>'.$listDoc[$i]['valoracion'].'</p>';
                 
                 ?>
                 </div>   
@@ -50,9 +59,19 @@
             //$array = $db->getListDocSubC($sub_category);
             //var_dump($array[0]['fecha'].'Prueba');
             //var_dump($db->getListDocSubC($sub_category));exit();
-            echo "<h2>Publicaciones en esta Categoria</h2>";
+            
             $listDoc = $db->getListDocCat($category);
             //var_dump($listDoc);exit();
+            if(sizeof($listDoc)==0){
+                echo '<div class=\'publicacion\' >';
+                echo "<h2>Aun no existen publicaciones en la categoria ".$_GET['category']."</h2> <img src ='resources/smailer-triste.png' class='noPubImagen'>";
+                echo '</div>';
+            }  else {
+                echo '<div class=\'publicacion\' >';
+               echo "<h2>Publicaciones en  Categoria ".$_GET['category']."</h2> ";
+               echo '</div>';
+            }
+            
             for($i=0; $i<sizeof($listDoc); $i++){
                 echo '<div class=\'publicacion\' id=\''.$listDoc[$i]['cod_documento'].'\' >';
                 ?>
@@ -79,33 +98,35 @@
         }
         else if(isset($category) && isset ($sub_category)){
             ?>
-            <h2>Nueva Publicacion</h2>
-            <form action="index.php?section=upload" method="post" enctype = "multipart/form-data">
-            <label for="mail">Archivo:</label><br>
-            <input type="file"  name="image" /><br>
-            <label for="msg">Mensaje:</label><br>
-            <textarea  name="user_message"></textarea><br>
-            <label for="enlace">Enlace:</label><br>
-            <textarea  name="user_enlace"></textarea><br>
-            <label for="ubicacion">Ubicacion:</label><br>
-            <input list="paises" type="text" name="paises">
-            <datalist id="paises">
-                <?php
-                    $db = Utilities::getConnection();
-                    $paises= $db->getListPaises();
-                    foreach($paises as $row){
-                        echo "<option value='".$row['nicename']."' id='".$row['cod_pais']."'>".$row['cod_pais']."</option>";
-                    }
-                   
-                ?>
-            </datalist><br>
-            <input  name="user_ubicacion"></input><br>
-            
-            <br>
-            <input type="hidden" value="<?php echo $_GET['sub_category']?>" name="sub_category" />
-            <input type="hidden" value="<?php echo $_SESSION["user"]?>" name="id_user" />
-            <button type="submit">Enviar</button>
-            </form>
+            <div class="formPub">    
+                <h2>Nueva Publicacion</h2>
+                <form action="index.php?section=upload" method="post" enctype = "multipart/form-data">
+                <label for="mail">Archivo:</label><br>
+                <input type="file"  name="image" /><br>
+                <label for="msg">Mensaje:</label><br>
+                <textarea  name="user_message"></textarea><br>
+                <label for="enlace">Enlace:</label><br>
+                <textarea  name="user_enlace"></textarea><br>
+                <label for="ubicacion">Ubicacion:</label><br>
+                <input list="paises" type="text" name="paises">
+                <datalist id="paises">
+                    <?php
+                        $db = Utilities::getConnection();
+                        $paises= $db->getListPaises();
+                        foreach($paises as $row){
+                            echo "<option value='".$row['nicename']."' id='".$row['cod_pais']."'>".$row['nicename']."</option>";
+                        }
+
+                    ?>
+                </datalist><br>
+                <input  name="user_ubicacion"></input><br>
+
+                <br>
+                <input type="hidden" value="<?php echo $_GET['sub_category']?>" name="sub_category" />
+                <input type="hidden" value="<?php echo $_SESSION["user"]?>" name="id_user" />
+                <button type="submit">Enviar</button>
+                </form>
+            </div>
             
             <?php
             //show all documents from this category
@@ -114,9 +135,22 @@
             //$array = $db->getListDocSubC($sub_category);
             //var_dump($array[0]['fecha'].'Prueba');
             //var_dump($db->getListDocSubC($sub_category));exit();
-            echo "<br><br><h2>Publicaciones en esta Categoria</h2>";
+            
             $listDoc = $db->getListDocSubC($sub_category);
+            if(sizeof($listDoc)==0){
+                echo '<div class="publicacion">';
+                echo "<h2>Aun no hay publicaciones en Sub Categoria ".$_GET['sub_category']."</h2> <img src ='resources/smailer-triste.png' class='noPubImagen'>";
+                echo '</div>';
+
+            }
+            
+            else{
+                echo '<div class="publicacion">';
+                echo "<h2>publicaciones en Sub Categoria ".$_GET['sub_category']."</h2>";
+                echo '</div>';
+            }
             for($i=0; $i<sizeof($listDoc); $i++){
+                
                 echo '<div class=\'publicacion\' id=\''.$listDoc[$i]['cod_documento'].'\' >';
                 ?>
                 <?php
@@ -185,8 +219,8 @@
             success: function(data) {
                //alert(data);
                //example web
-              document.getElementById(valoracion['cod_documento']-1000).innerHTML = data;
-               
+             var val = "<b>Valoracion:  </b>";
+               document.getElementById(valoracion['cod_documento']-1000).innerHTML =val.concat(data);
               //$("#likeCounts").text(data);
             },
             error: function() {
@@ -209,7 +243,8 @@
                //alert(data);
                //Example im Web
                //document.getElementById("p1").innerHTML = "New text!";
-               document.getElementById(valoracion['cod_documento']-1000).innerHTML = data;
+               var val = "<b>Valoracion:  </b>";
+               document.getElementById(valoracion['cod_documento']-1000).innerHTML =val.concat(data);
                
                
               //$("#likeCounts").text(data);

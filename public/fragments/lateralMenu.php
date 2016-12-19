@@ -25,7 +25,7 @@
         <option id="" value=""></option>
     </select>
     <br>
-    <input type="submit" value="Buscar" id="Document">
+    <button type="submit" value="Buscar" id="Document">Buscar</button>
     
     <br><br>
     <?php 

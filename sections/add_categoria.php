@@ -64,15 +64,16 @@ function insert_category(){
 }
    
 ?>
-
+<div class="publicacion">
 <h2>add category</h2>
 <p><span class="error">* required field.</span></p>
 <form method="post" id="usrform" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"].'?section=add_categoria');?>">  
-  Name: <br><input type="text" name="name" value="<?php echo $name;?>">
+  <b>Name: </b><br><input type="text" name="name" value="<?php echo $name;?>">
   <span class="error">* <?php echo $nameErr;?></span>
   <br><br>
-  Descripcion:<br> <input type="text" name="description" value="<?php echo $description;?>">
+  <b>Descripcion:</b><br> <input type="text" name="description" value="<?php echo $description;?>">
   <span class="error">* <?php echo $descriptionErr;?></span>
   <input type="submit" name="submit" value="GRABAR">  
 </form>
+</div>
 

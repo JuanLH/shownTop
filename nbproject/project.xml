@@ -6,6 +6,7 @@
             <name>ShownTop</name>
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>Buscar</word>
             <word>Perfil</word>
         </spellchecker-wordlist>
     </configuration>

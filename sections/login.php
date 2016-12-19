@@ -35,9 +35,10 @@ and open the template in the editor.
                     exit;
 		}
 	}
+        echo "<div class='formCenter'>";
         echo $msg;
 ?>
-<div class="formCenter">
+
 <form method="POST" action="index.php?section=login">
         <b>User Name:</b><br><input name="user" type="text" value=""/><br><br>
         <b>Password:</b><br><input name="pass" type="password" value=""/><br><br>

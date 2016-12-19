@@ -10,40 +10,22 @@ and open the template in the editor.
 
 .lateralMenu{
     float: left;
-	width: 20%;
+	width: 25%;
         height: 100%;
-	padding:0px 0px 0px 0px;
+	padding:8px 0px 0px 8px;
 	border-radius: 3px;
-	border: 2px solid #ccc;
+	border: 3px solid #037E8C;
         margin-bottom: 15px;
         background-color: #FFE369;
+        font-size: 16px;
 }
 
 #cat,#sub_categorias {
     border: 1px solid #black;
-    width: 100%;
+    width: 95%;
     border-radius: 3px;
     overflow: hidden;
     
-}
-
-.formPub input[type=submit] {
-   
-    background:#f2f2f2; 
-    border:0 none;
-    cursor:pointer;
-    padding:5px 10px;
-    text-decoration: none;
-    border-radius: 3px; 
-    margin-left: 20% ;
-    margin-right: auto ;
-    margin-top: 5px;
-}
-
-input [type=submit]:hover {	
-    
-	color: #fff;
-	background: #C9F76C;
 }
 
 
@@ -58,7 +40,9 @@ input [type=submit]:hover {
 }
 
 
-.categories{color: #037E8C;}
+.categories{
+    color: #037E8C;
+}
 /*
 .menu *{
     margin: 0; padding: 0;

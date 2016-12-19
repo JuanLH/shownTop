@@ -179,6 +179,28 @@ error_reporting(E_ALL);
             }
         }
         
+        public function getNameCategoryandSubCategory($codSubCategory){
+            $sql="select c.name_categoria,sc.name_sub_categoria 
+                from sub_categorias sc inner join categorias c 
+                on c.cod_categoria = sc.cod_categoria 
+                where sc.cod_sub_categoria = ".$codSubCategory."";
+            
+            try{
+                $statement = $this->conn->prepare($sql);
+                $statement->execute();
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                //var_dump($result);exit();
+                return $result[0]['name_categoria']." ->".$result[0]['name_sub_categoria'];  
+                return $result;    
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+              
+            
+        }
+        
         /*Entities:Usuario Methods-----------------------------------------*/
         public function registrarUsuario($array){
             try{
@@ -459,7 +481,10 @@ error_reporting(E_ALL);
                      AND correo like '".$array['correo']."%' 
                      AND nombre  like '".$array['nombre']."%'
                      AND sexo like '".$array['sexo']."%'
-                     AND estado_civil like '".$array['estado_civil']."%'");
+                     AND estado_civil like '".$array['estado_civil']."%'
+                     AND cod_ubicacion in 
+                     (select cod_ubicacion from ubicaciones where cod_pais in 
+                     (select cod_pais from pais where nicename like '".$array['pais']."%'))");
             
             $prep->execute();
             //$prep->debugDumpParams();
@@ -473,7 +498,7 @@ error_reporting(E_ALL);
         }
         
         public function thereAreUser($email){
-            $sql = "select  cod_usuario,nombre from usuarios where correo = '".$email."'";
+            $sql = "select cod_usuario,nombre,detalle,estado from usuarios where correo = '".$email."'";
             try{
                 $prep = $this->conn->prepare($sql);
                 $prep->execute();
@@ -482,8 +507,11 @@ error_reporting(E_ALL);
                     return false;
                 }
                 else{
-                    $this->setChangePassStatus($email);
-                    return true;
+                    $Detalle = $this->setChangePassStatus($email);
+                    $prep = $this->conn->prepare($sql);
+                    $prep->execute();
+                    $result = $prep->fetchAll(PDO::FETCH_ASSOC);
+                    return $result;
                 }
             }
             catch(PDOException $e){
@@ -491,14 +519,40 @@ error_reporting(E_ALL);
                 return false;
             }
         }
+        
+        public function checkSecurityUserCode($userName,$securityCode){
+            $sql = "select cod_usuario,nombre,detalle,estado from usuarios "
+                    . "where nombre = '".$userName."' "
+                    . "and detalle = '".$securityCode."' and estado = 2 ";
+            try{
+                $prep = $this->conn->prepare($sql);
+                $prep->execute();
+                $result = $prep->fetchAll(PDO::FETCH_ASSOC);
+                if(sizeof($result)==0){
+                    return false;
+                }
+                else{
+                    return true;
+                }
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+            
+        }
+        
         public function setChangePassStatus($email){
+            $Detalle = rand(100,9000); 
             $sql = "UPDATE usuarios
                     SET 
-                      estado = 2
+                      estado = 2,
+                      detalle = '".$Detalle."'
                   WHERE correo = '".$email."'";
             try{
                 $prep = $this->conn->prepare($sql);
                 $prep->execute();
+               
             }
             catch(PDOException $e){
                 echo 'Connection failed:<br><br> ' .$e->getMessage();
@@ -506,6 +560,25 @@ error_reporting(E_ALL);
             }
         }
         
+        public function changePass($userName,$clave,$securityCode){
+            $Detalle = rand(100,9000); 
+            $sql = "UPDATE usuarios
+                    SET 
+                      estado = 0,
+                      clave = '".$clave."',
+                      detalle = '".$Detalle."'    
+                  WHERE nombre = '".$userName."' "
+                    ."AND detalle = '".$securityCode."'";
+            try{
+                $prep = $this->conn->prepare($sql);
+                $prep->execute();
+                return true;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' .$e->getMessage();
+                return false;
+            }
+        }
         public function getUserStatus($email){
             $sql = "select  estado from usuarios where correo = '".$email."'";
             try{
@@ -613,13 +686,145 @@ error_reporting(E_ALL);
                 return false;
             }
         }
+        public function consultTipoDocument($array){
+            $sql ="SELECT cod_documento
+                    ,fecha
+                    ,cod_usuario
+                    ,cod_tipo_documento
+                    ,texto
+                    ,ubicacion
+                    ,foto
+                    ,valoracion
+                    ,id_doc_original
+                    ,cod_sub_categoria
+                    ,vinculo
+                        ,estado
+                    ,tumbnail
+                FROM showntop.dbo.documento 
+                WHERE cod_tipo_documento = ".$array['tipoDoc']."
+                AND texto like '%".$array['texto']."%'
+                AND vinculo like '%".$array['correo']."%'
+                AND fecha >= '".$array['fecha']."' "
+                    . "order by valoracion ".$array['orden']." ";
+                try{
+                    $statement = $this->conn->prepare($sql);
+                    $statement->execute();
+                    $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                    return $result;
+                }
+                catch(PDOException $e){
+                    echo 'Connection failed:<br><br> ' . $e->getMessage();
+                    return false;
+                }
+        }
+        public function consultTipoDocumentWithUbicacion($array){
+            $sql ="SELECT cod_documento
+                    ,fecha
+                    ,cod_usuario
+                    ,cod_tipo_documento
+                    ,texto
+                    ,ubicacion
+                    ,foto
+                    ,valoracion
+                    ,id_doc_original
+                    ,cod_sub_categoria
+                    ,vinculo
+                        ,estado
+                    ,tumbnail
+                FROM showntop.dbo.documento 
+                WHERE cod_tipo_documento = ?
+                AND texto like '%?%'
+                AND vinculo like '%?%'
+                AND fecha >= '?' 
+                AND ubicacion  in 
+                      (select cod_ubicacion from ubicaciones where cod_pais in 
+                      (select cod_pais from pais where nicename like '?%')) 
+                      order by valoracion ".$array['orden']."";
+            try{
+                $statement = $this->conn->prepare($sql);
+                $statement->execute();
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
+        
+        public function consultDocument($array){
+            $sql ="SELECT cod_documento
+                    ,fecha
+                    ,cod_usuario
+                    ,cod_tipo_documento
+                    ,texto
+                    ,ubicacion
+                    ,foto
+                    ,valoracion
+                    ,id_doc_original
+                    ,cod_sub_categoria
+                    ,vinculo
+                    ,estado
+                    ,tumbnail
+                FROM showntop.dbo.documento 
+                WHERE cod_tipo_documento < 6
+                AND texto like '%".$array['texto']."%'
+                AND vinculo like '%".$array['correo']."%'
+                AND fecha >= '".$array['fecha']."' "
+                    . "order by valoracion ".$array['orden']." ";
+            try{
+                $statement = $this->conn->prepare($sql);
+                $statement->execute();
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
+        
+        public function consultDocumentWithUbicacion($array){
+            $sql ="SELECT cod_documento
+                    ,fecha
+                    ,cod_usuario
+                    ,cod_tipo_documento
+                    ,texto
+                    ,ubicacion
+                    ,foto
+                    ,valoracion
+                    ,id_doc_original
+                    ,cod_sub_categoria
+                    ,vinculo
+                        ,estado
+                    ,tumbnail
+                FROM showntop.dbo.documento 
+                WHERE cod_tipo_documento < 6
+                AND texto like '%?%'
+                AND vinculo like '%?%'
+                AND fecha >= '?' 
+                AND ubicacion  in 
+                      (select cod_ubicacion from ubicaciones where cod_pais in 
+                      (select cod_pais from pais where nicename like '?%')) 
+                      order by valoracion ".$array['orden']."";
+            try{
+                $statement = $this->conn->prepare($sql);
+                $statement->execute();
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                return $result;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
+        
         
         public function insertValoracion($cod_documento,$valoracion){
             session_start();
             $array =  $this ->getDocument($cod_documento);
             
-            if($this->checkValoracion($_SESSION['user']
-                    ,$cod_documento)){
+            if($this->checkValoracion($_SESSION['user'],$cod_documento)){
                 //Update valoracion
                 try{
                     $prep = $this->conn->prepare('UPDATE [dbo].[documento]
@@ -778,7 +983,7 @@ error_reporting(E_ALL);
                         ,[estado]
                         ,[tumbnail]
                     FROM [dbo].[documento] where [cod_sub_categoria] = '.$cod_subCat.'
-                    AND [cod_tipo_documento] < 6 order by valoracion desc';
+                    AND [cod_tipo_documento] < 6 and estado = 0  order by valoracion desc';
             
             try{
                 //var_dump($sql);exit();
@@ -795,7 +1000,21 @@ error_reporting(E_ALL);
             
         }
         
-        
+        public function desabilitarDoc($codDoc){
+            
+            $sql="UPDATE [dbo].[documento]
+                    SET estado = 1
+                  WHERE cod_documento = ".$codDoc."";
+            try{
+                $prep = $this->conn->prepare($sql);
+                $prep->execute();
+                return true;
+            }
+            catch(PDOException $e){
+                echo 'Connection failed:<br><br> ' . $e->getMessage();
+                return false;
+            }
+        }
         public function getListDocCat($Cat){
             
             $cod_Cat = (int)$this->getCategory($Cat);
@@ -815,7 +1034,7 @@ error_reporting(E_ALL);
                 ,[tumbnail]
             FROM [dbo].[documento]
             WHERE cod_sub_categoria in (select cod_sub_categoria from sub_categorias where cod_categoria = (select cod_categoria from categorias where name_categoria = '".$Cat."')) 
-            AND [cod_tipo_documento] <6 order by valoracion desc";
+            AND [cod_tipo_documento] <6 and estado = 0 order by valoracion desc";
             
             try{
                 //var_dump($sql);exit();
@@ -847,7 +1066,7 @@ error_reporting(E_ALL);
                 ,[estado]
                 ,[tumbnail]
             FROM [dbo].[documento]
-            WHERE cod_usuario = ".$id_user." and cod_tipo_documento < 6 order by valoracion desc";
+            WHERE cod_usuario = ".$id_user." and cod_tipo_documento < 6 and estado = 0 order by valoracion desc";
             try{
                 $statement = $this->conn->prepare($sql);
                 $statement->execute();
@@ -876,7 +1095,8 @@ error_reporting(E_ALL);
                 ,[tumbnail]
             FROM [dbo].[documento]
             where cod_documento in (SELECT [cod_documento]
-            FROM [dbo].[favoritos] where cod_usuario = ".$id_user.") order by valoracion desc";
+            FROM [dbo].[favoritos] where cod_usuario = ".$id_user.") and estado = 0 "
+                    . "order by valoracion desc";
             try{
                 $statement = $this->conn->prepare($sql);
                 $statement->execute();
@@ -904,7 +1124,7 @@ error_reporting(E_ALL);
                 ,[estado]
                 ,[tumbnail]
             FROM [dbo].[documento]
-            WHERE cod_tipo_documento < 6 order by valoracion desc";
+            WHERE cod_tipo_documento < 6 and estado = 0 order by valoracion desc";
             try{
                 $statement = $this->conn->prepare($sql);
                 $statement->execute();

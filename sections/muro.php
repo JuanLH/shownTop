@@ -23,12 +23,13 @@
                echo '</div>';
             }
             for($i=0; $i<sizeof($listDoc); $i++){
+                //var_dump($listDoc);
                 echo '<div class=\'publicacion\' id=\''.$listDoc[$i]['cod_documento'].'\' >';
                 ?>
                 <?php
                 $usuario = $db->getUsuario($listDoc[$i]['cod_usuario']);
                 //var_dump($usuario);
-                echo $usuario['nombre'].' publicado al '.$listDoc[$i]['fecha'].' <br>';
+                echo $usuario['nombre'].' a publicado al '.$listDoc[$i]['fecha'].' en '.$db->getNameCategoryandSubCategory($listDoc[$i]['cod_sub_categoria']).' <br>';
                  if($listDoc[$i]['texto']!='')
                     echo "<b>Mensaje:</b>".$listDoc[$i]['texto'].'<br>';
                 if($listDoc[$i]['ubicacion']!='')
@@ -78,7 +79,7 @@
                 <?php
                 $usuario = $db->getUsuario($listDoc[$i]['cod_usuario']);
                 //var_dump($usuario);
-                echo $usuario['nombre'].' publicado al '.$listDoc[$i]['fecha'].' <br>';
+                echo $usuario['nombre'].' a publicado al '.$listDoc[$i]['fecha'].'  en '.$db->getNameCategoryandSubCategory($listDoc[$i]['cod_sub_categoria']).' <br>';
                  if($listDoc[$i]['texto']!='')
                     echo "<b>Mensaje:</b>".$listDoc[$i]['texto'].'<br>';
                 if($listDoc[$i]['ubicacion']!='')
@@ -119,7 +120,7 @@
 
                     ?>
                 </datalist><br>
-                <input  name="user_ubicacion"></input><br>
+                <input type="text" name="user_ubicacion"></input><br>
 
                 <br>
                 <input type="hidden" value="<?php echo $_GET['sub_category']?>" name="sub_category" />
@@ -156,7 +157,7 @@
                 <?php
                 $usuario = $db->getUsuario($listDoc[$i]['cod_usuario']);
                 //var_dump($usuario);
-                echo $usuario['nombre'].' publicado al '.$listDoc[$i]['fecha'].' <br>';
+                echo $usuario['nombre'].' a publicado al '.$listDoc[$i]['fecha'].'  en '.$db->getNameCategoryandSubCategory($listDoc[$i]['cod_sub_categoria']).' <br>';
                  if($listDoc[$i]['texto']!='')
                     echo "<b>Mensaje:</b>".$listDoc[$i]['texto'].'<br>';
                 if($listDoc[$i]['ubicacion']!='')
@@ -164,9 +165,9 @@
                 if($listDoc[$i]['vinculo']!='')
                     echo "<b>Vinculo:</b>".'<a href='.$listDoc[$i]['vinculo'].'>enlace</a><br>';
                 echo '<img src =\''.$listDoc[$i]['tumbnail'].'\'><br>';
-                echo '<img src =\'resources/like.png\' id=\''.$listDoc[$i]['cod_documento'].'\'  class = \'like\' width=20px  height = 20px>';
-                echo '<img src =\'resources/dislike.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'dislike\'  width=20px  height = 20px>';
-                echo '<img src =\'resources/Button-Favorite-icon.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'favorito\'  width=20px  height = 20px>';
+                echo '<img src =\'resources/like.png\' id=\''.$listDoc[$i]['cod_documento'].'\'  class = \'like\' >';
+                echo '<img src =\'resources/dislike.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'dislike\' >';
+                echo '<img src =\'resources/Button-Favorite-icon.png\' id=\''.$listDoc[$i]['cod_documento'].'\' class = \'favorito\' >';
                 echo '<p  id=\''.($listDoc[$i]['cod_documento']-1000).'\'><b>Valoracion:</b>'.$listDoc[$i]['valoracion'].'</p>';
                 ?>
                 </div>   
@@ -177,7 +178,8 @@
         }
     ?>   
 </div>
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="resources/JQuery3-1-1.html"></script>
+<!--<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>-->
 <script>
  $(document).ready(function() {
      
@@ -197,7 +199,7 @@
             data: documento,
             success: function(data) {
                console.log(data);
-               
+               alert("La publicacion  a sido agregada a sus favoritos");
               
             },
             error: function() {

@@ -10,13 +10,15 @@ and open the template in the editor.
 
 .muro{
     float: right;
-    width: 80%;
+    width: 75%;
     padding:0px 0px 0px 0px;
    /* border-radius: 1px;
     border: 5px solid #564501;*/
     margin-bottom: 15px;
     height: 450px;
-    overflow: scroll;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    overflow: auto; 
 }
 
 .publicacion{
@@ -29,7 +31,7 @@ and open the template in the editor.
     background-color: #C9F76C;
     border-radius: 5px;
     display: block;
-    
+    font-size: 12px;
 }
 
 .formPub{
@@ -50,3 +52,12 @@ and open the template in the editor.
     width:60px;
     margin-left: 20%;
 }
+
+.favorito,.eliminar,.like,.dislike{
+    height: 20px;
+    width:25px;
+    padding-left: 5px;
+    cursor: pointer;
+    
+}
+

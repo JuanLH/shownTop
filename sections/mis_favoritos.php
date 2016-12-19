@@ -4,6 +4,11 @@
            
             
             $listDoc = $db->getListFav($_SESSION['user']);
+            if(sizeof($listDoc)==0){
+                echo "<div class='publicacion'>";
+                echo "<h2>Aun no tiene Favoritos agregados</h2>";
+                echo "</div>";
+            }
             for($i=0; $i<sizeof($listDoc); $i++){
                 echo '<div class=\'publicacion\' id=\''.$listDoc[$i]['cod_documento'].'\' >';
                 ?>

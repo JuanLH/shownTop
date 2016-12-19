@@ -5,22 +5,17 @@ input {
 /*Use the padding property to add space inside the text field.
 
 Tip: When you have many inputs after each other, you might also want to add some margin, to add more space outside of them:*/
-input[type=text],input[type=password] {
+input[type=text],input[type=password],select,textarea {
     width: 70%;
     padding: 5px 10px;
-    margin: 8px 0;
+    margin: 0px 0;
     box-sizing: border-box;
-}
-/*Use the border property to change the border size and color, and use the border-radius property to add rounded corners:*/
-input[type=text],input[type=password] {
-    border: 2px solid red;
+    border: 2px solid ;
     border-radius: 2px;
+    
 }
-/*If you only want a bottom border, use the border-bottom property:*/
-input[type=text],input[type=password] {
-    border: none;
-    border-bottom: 2px solid red;
-}
+
+
 /*Use the background-color property to add a background color to the input, and the color property to change the text color:*/
 input[type=text],input[type=password] {
     /*background-color: #3CBC8D;
@@ -45,34 +40,39 @@ padding-left: 40px;
 }
 */
 /* Styling Input Buttons */
-input[type=button], input[type=submit], input[type=reset] {
-    background-color: #4CAF50;
-    border: none;
+
+input[type=button], input[type=submit], input[type=reset] ,button{
+    background-color: black;
+    box-sizing: border-box;
     color: white;
     padding: 16px 32px;
+   
     text-decoration: none;
-    margin: 4px 2px;
+    margin: 4px 2px 0px 20%;
     cursor: pointer;
+    
 }
 
 /* Tip: use width: 100% for full-width buttons */
 
 input[type=file]{
-    width: 55%;
-   font-size: 10px;
-   display: block;
-    background: #f2f2f2;
-    color: #037E8C;
+    width: 70%;
+    padding: 5px 10px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: 2px solid ;
+    border-radius: 2px;
    
     text-decoration: none;
     border-radius:3px;
-    transition:all 300ms ease;
+    
     
 }
 
-input[type=date],input[type=password] {
-    width: 30%;
+input[type=date] {
+    width: 40%;
     padding: 0px 5px;
     margin: 5px 0;
     box-sizing: border-box;
+    border-radius: 3px;
 }

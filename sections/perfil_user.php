@@ -10,6 +10,7 @@
     //var_dump($_POST);
     //var_dump($usuario);
 ?>
+<div class="publicacion">
 <form action="" name="userForm" method="post" enctype = "multipart/form-data" 
        onsubmit="return validateForm()">
     <input type="hidden" name="id" value="<?=$_SESSION['user']?>">
@@ -38,8 +39,8 @@
     <label for="ubicacion">Correo:</label><br>
     <input type="text"  name="correo" value ="<?=$usuario['correo']?>"></input><br>
     
-    <label for="picture">Foto:</label> 
-    <input type="file"  name="image" />
+    <label for="picture">Foto:</label> <br>
+    <input type="file"  name="image" /><br>
     <img name="foto" src="<?=$usuario['foto']?>" ><br>
     
     <label for="telefono">Telefono:</label><br>
@@ -63,7 +64,7 @@
    
     <button type="submit" name="submit" >Actualizar</button>
 </form>
-        
+</div>        
 <script>
     function validateEmail(email) {
         var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

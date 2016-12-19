@@ -120,23 +120,25 @@ if(isset($_POST['submit']))
         }
 
 ?>
-<h2>Sing up</h2>
+<div class="formCenter">
+<h2>Registrarse</h2>
 <p><span class="error">* required field.</span></p>
 <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"].'?section=reg_user');?>">  
-  Name: <input type="text" name="name" value="<?php echo $name;?>">
+  <b>Name:</b><br> <input type="text" name="name" value="<?php echo $name;?>">
   <span class="error">* <?php echo $nameErr;?></span>
   <br><br>
-  E-mail: <input type="text" name="email" value="<?php echo $email;?>">
+  <b>E-mail:</b><br> <input type="text" name="email" value="<?php echo $email;?>">
   <span class="error">* <?php echo $emailErr;?></span>
   <br><br>
-  Password: <input type="password" name="password" value="<?php echo $password;?>">
+  <b>Password:</b> <br><input type="password" name="password" value="<?php echo $password;?>">
   <span class="error">* <?php echo $passwordErr;?></span>
   <br><br>
  
-  Gender:   
+  <b>Gender:</b><br>   
   <input type="radio" name="gender" <?php if (isset($gender) && $gender=="female") ?> value="female">Female</input>
   <input type="radio" name="gender" <?php if (isset($gender) && $gender=="male") ?> value="male">Male</input>
     <span class="error">* <?php echo $genderErr;?></span>
   <br><br>
   <input type="submit" name="submit" value="GRABAR">  
 </form>
+</div>

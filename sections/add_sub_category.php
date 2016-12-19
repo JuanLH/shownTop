@@ -11,7 +11,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
     if(isset($_POST['submit']))
     {
-        var_dump($_POST);
+        
         insert_sub_category();
     }
     
@@ -60,11 +60,11 @@ error_reporting(E_ALL);
     }
     
 ?>
-
+<div class="publicacion">
 <h2>Add Sub_Category</h2>
 <p><span class="error">* required field.</span></p>
 <form method="post" id="usrform"  action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"].'?section=add_sub_category');?>">  
-  Categoria: <input  list="category" type="text" name="category" >
+  <b>Categoria:</b> <br><input  list="category" type="text" name="category" >
   <datalist id="category">
          <?php 
             include_once('../clases/Utilities.php'); 
@@ -79,11 +79,11 @@ error_reporting(E_ALL);
     </datalist>
   <span class="error">* <?php echo $nameErr;?></span>
   <br><br>
-  Sub Categoria: <br><input type="text" name="subcategory" value="<?php echo $name;?>">
+  <b>Sub Categoria:</b> <br><input type="text" name="subcategory" value="<?php echo $name;?>">
   <span class="error">* <?php echo $nameErr;?></span>
   <br><br>
-  Descripcion: <br><input type="text" name="description" value="<?php echo $description;?>">
+  <b>Descripcion:</b> <br><input type="text" name="description" value="<?php echo $description;?>">
   <span class="error">* <?php echo $descriptionErr;?></span>
   <input type="submit" name="submit" value="GRABAR">  
 </form>
-
+<div>

@@ -53,11 +53,11 @@ class FileHandle {
                     $original= imagecreatefrompng($file_tmp);
                 }
                 else if ($file_ext == 'gif'){
-                    $original = imagecreatefromgif($file_tmp);
-                    var_dump($original);exit();
+                    $original = imagecreatefromgif($file_tmp);  
                 }
                 else{
                     /*no se pudo generar la imagen*/
+                    echo "Error";
                     return -2;
                 }
              }
@@ -111,17 +111,18 @@ class FileHandle {
 
 
 
-        if($file['size'] != 0 && !($postdata['user_message']!=''|| $postdata['user_enlace']!='')){
+        if(($file['size'] != 0 ||($file['size'] != 0 && $postdata['user_message']!=''))&& !($postdata['user_enlace']!='')){
             $tipo_doc=1;//imagen
         }
-        else if(!($postdata['user_ubicacion']!='' && $file['size'] != 0) && $postdata['user_enlace']!=''){
-            $tipo_doc=4;//enlace
+        else if($file['size'] == 0 && ($postdata['user_enlace']!='' 
+                || ($postdata['user_enlace']!='' && $postdata['user_message']!=''))){
+            $tipo_doc=5;//enlace
         }
-        else if(!($file['size'] != 0 && $postdata['user_enlace']!='' && $postdata['user_ubicacion']!='')&& $postdata['user_message']!=''){
-            $tipo_doc=2;//texto
+        else if(!($file['size'] != 0 && $postdata['user_enlace']!='')&& $postdata['user_message']!=''){
+            $tipo_doc=3;//texto
         }
-        else if( $file['size'] != 0  && isset($postdata['user_enlace']) && isset($postdata['user_ubicacion']) && isset($postdata['user_message'])){
-            $tipo_doc=5;//Variado
+        else if( $file['size'] != 0  && $postdata['user_enlace']!='' && $postdata['user_message']!=''){
+            $tipo_doc=0;//Variado
         }
 
         include('../clases/Utilities.php'); 
